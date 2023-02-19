@@ -1,0 +1,132 @@
+# README for app run via docker-compose
+
+`compose.yaml` describes the services.
+
+## Build it
+
+```
+sudo docker compose build
+```
+
+## Just run it
+
+```
+> sudo docker compose up
+[+] Running 1/0
+ ⠿ Container pass-secret-app-1  Recreated 0.1s
+Attaching to pass-secret-app-1
+pass-secret-app-1  | Failed to read from <_io.TextIOWrapper name='<stdin>' mode='r' encoding='utf-8'>: Expecting value: line 1 column 1 (char 0)
+pass-secret-app-1  |  * Serving Flask app 'app'
+pass-secret-app-1  |  * Debug mode: off
+pass-secret-app-1  | WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+pass-secret-app-1  |  * Running on all addresses (0.0.0.0)
+pass-secret-app-1  |  * Running on http://127.0.0.1:8888
+pass-secret-app-1  |  * Running on http://172.18.0.2:8888
+pass-secret-app-1  | Press CTRL+C to quit
+```
+
+Note: container fails to read secrets from `stdin` yet continues execution.
+
+### Test it
+
+In another shell:
+
+```
+> curl -q http://127.0.0.1:8888
+hello from docker!
+> curl -q http://127.0.0.1:8888/get-env
+{
+  "AP_FOO": "secret_not_really",
+  "AP_BAR": "in_your_face"
+}
+> curl -q http://127.0.0.1:8888/get-secrets
+{}
+```
+
+Note: no secrets were passed.
+
+Note: environment was passed from `compose.yaml`.
+
+## Run it passing the stdin to a container
+
+This runs docker comose service `app` and passes to it secrets via `stdin`:
+
+```
+> cat ./app/secrets.json| sudo docker compose run -T -p '127.0.0.1:8888:8888' app
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8888
+ * Running on http://172.18.0.2:8888
+Press CTRL+C to quit
+```
+### Test it
+
+In another shell:
+
+'''
+> curl -q http://127.0.0.1:8888
+hello from docker!
+> curl -q http://127.0.0.1:8888/get-env
+{
+  "AP_BAR": "in_your_face",
+  "AP_FOO": "secret_not_really"
+}
+> curl -q http://127.0.0.1:8888/get-secrets
+{
+  "foo": "bar",
+  "baz": 1,
+  "qux": null,
+  "quux": 3.3,
+  "grault": true,
+  "garply": [
+    "waldo",
+    "xyzzy",
+    "thud"
+  ],
+  "corge": {
+    "fred": 1,
+    "plugh": false
+  }
+}
+'''
+
+## Run it passing the stdin to `docker compose`
+
+Use `gomplate` to create a compose (with secrets) and pass it to
+`docker compose` via stdin
+
+```
+> gomplate -d secrets=./app/secrets.json -f compose.gomplate| sudo docker compose -f - up
+[+] Running 1/1
+ ⠿ Container pass-secret-app-1  Recreated 0.1s
+Attaching to pass-secret-app-1
+pass-secret-app-1  | Failed to read from <_io.TextIOWrapper name='<stdin>' mode='r' encoding='utf-8'>: Expecting value: line 1 column 1 (char 0)
+pass-secret-app-1  |  * Serving Flask app 'app'
+pass-secret-app-1  |  * Debug mode: off
+pass-secret-app-1  | WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+pass-secret-app-1  |  * Running on all addresses (0.0.0.0)
+pass-secret-app-1  |  * Running on http://127.0.0.1:8888
+pass-secret-app-1  |  * Running on http://172.18.0.2:8888
+pass-secret-app-1  | Press CTRL+C to quit
+```
+
+### Test it
+
+In another shell:
+
+'''
+> curl -q http://127.0.0.1:8888
+hello from docker!
+> curl -q http://127.0.0.1:8888/get-env
+{
+  "AP_GRAULT": "true",
+  "AP_FOO": "bar",
+  "AP_BAZ": "1",
+  "AP_QUX": "null",
+  "AP_QUUX": "3.3"
+}
+> curl -q http://127.0.0.1:8888/get-secrets
+{}
+'''

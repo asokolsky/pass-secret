@@ -1,0 +1,15 @@
+services:
+  app:
+    environment:
+      - AP_FOO=secret_not_really
+      - AP_BAR=in_your_face
+    #stdin_open: true # docker run -i
+    #tty: false
+    # flask requires SIGINT to stop gracefully
+    # (default stop signal from Compose is SIGTERM)
+    stop_signal: SIGINT
+    ports:
+      - '127.0.0.1:8888:8888'
+    build:
+      context: ./app
+    image: app:params-secret-test
