@@ -1,8 +1,10 @@
 # README
 
-Here I look into different methods to pass parameters and secrets to an
-application, application in a docker container, application container in a
-docker compose environment.
+Here I look into different methods to pass parameters and secrets to
+
+* an application,
+* application in a docker container,
+* application container in a docker compose environment.
 
 Secrets, e.g. password, can be passed to a process via:
 
@@ -10,10 +12,9 @@ Secrets, e.g. password, can be passed to a process via:
 * environment - better
 * stdin - best
 
-This will (hopefully) show how to use
-[gomplate](https://github.com/hairyhenderson/gomplate)
-to retrieve the secrets, e.g. from AWS Secret Manager, and pass these to an app
-or container.
+This will (hopefully) show how to use [gomplate](gomplate-aws-sm.md) to retrieve
+the secrets, e.g. from AWS Secrets Manager, and pass these to an app or
+container via `stdin`.
 
 Road map:
 

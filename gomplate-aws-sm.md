@@ -1,5 +1,8 @@
 # gomplate with AWS+SM data source
 
+[gomplate](https://github.com/hairyhenderson/gomplate) supports
+[variety of data sources](https://github.com/hairyhenderson/gomplate/blob/main/docs/content/datasources.md).
+
 Have your gomplate
 [set-up](https://asokolsky.github.io/apps/gomplate.html)
 
