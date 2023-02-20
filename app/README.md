@@ -146,7 +146,7 @@ Launching the app like this makes a difference:
 > cat secrets.json | AP_FOO=bar python3 app.py --hi "Cruel cruel world"
 ```
 
-## Use gomplate
+## Use gomplate with file data source
 
 [gomplate](https://github.com/hairyhenderson/gomplate) lists among its
 data sources "JSON (including EJSON - encrypted JSON), YAML, AWS EC2 metadata,
@@ -178,7 +178,7 @@ For example, here we use `secrets.json` as a data source to fill in
 Let the gomplate fill the secrets (for now, coming from file data source) and
 pass these to the app:
 
-```
+```sh
 cat secrets.gomplate | \
   gomplate -d secrets=secrets.json | \
   AP_FOO=bar python3 app.py --hi "Cruel cruel world"
@@ -211,6 +211,51 @@ Cruel cruel world
   }
 }
 ```
+## Use gomplate with AWS Secrets Manager as a data source
+
+Store the secrets in AWS Secrets Manager under the key `pass-secret`:
+
+```sh
+aws secretsmanager create-secret \
+    --name pass-secret \
+    --description "Secrets for pass-secret repo" \
+    --secret-string file:secrets.json
+```
+
+Launch the app like this:
+```sh
+cat secrets.gomplate | \
+  gomplate -d 'secrets=aws+sm:pass-secret?type=application/json' | \
+  AP_FOO=bar python3 app.py --hi "Cruel cruel world"
+```
+
+Then in another shell:
+```console
+> curl http://127.0.0.1:8000/
+Cruel cruel world
+> curl http://127.0.0.1:8000/get-env
+{
+  "AP_FOO": "bar"
+}
+> curl http://127.0.0.1:8000/get-secrets
+{
+  "foo": "bar",
+  "baz": 1,
+  "qux": null,
+  "quux": 3.3,
+  "grault": true,
+  "garply": [
+    "waldo",
+    "xyzzy",
+    "thud"
+  ],
+  "corge": {
+    "fred": 1,
+    "plugh": false
+  }
+}
+```
+
 
 ### Examine secrets leakage
 
@@ -264,3 +309,5 @@ Attempt to read it does not result in anything:
 Using stdin to ingest the secrets retrieved by gomplate from a secure storage,
 e.g. from AWS Secret Manager, is a recommended way to store and pass secrets to
 an app.
+
+Read more about the app use in a container: [docker.md](docker.md)

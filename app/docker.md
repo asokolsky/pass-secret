@@ -3,13 +3,13 @@
 Consider passing parameters and secrets to a container running the
 [app](README.md)).
 
-### Build the app image
+## Build the app image
 
 ```sh
 sudo docker build -t params-secret-test .
 ```
 
-### Start the app container
+## Start the app container
 
 Note the need for:
 
@@ -72,13 +72,66 @@ Note that the need to explicitly set the environment for the container forces
 it to be present on the command line which makes it unsuitable for passing
 secrets.
 
+## A better way to start the app container
+
+If you store secrets in AWS...
+
+```sh
+aws secretsmanager create-secret \
+    --name pass-secret \
+    --description "Secrets for pass-secret repo" \
+    --secret-string file:secrets.json
+```
+
+You can launch the container with secrets retrieved from AWS using gomplate:
+
+```
+cat secrets.gomplate | \
+  gomplate -d 'secrets=aws+sm:pass-secret?type=application/json' | \
+  sudo docker run -e AP_FOO=bar -p 8888:8888 -i params-secret-test
+
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8888
+ * Running on http://172.17.0.2:8888
+Press CTRL+C to quit
+```
+
+Then in a separate shell:
+```
+> curl -q http://127.0.0.1:8888
+hello from docker!
+> curl -q http://127.0.0.1:8888/get-env
+{
+  "AP_FOO": "bar"
+}
+> curl -q http://127.0.0.1:8888/get-secrets
+{
+  "foo": "bar",
+  "baz": 1,
+  "qux": null,
+  "quux": 3.3,
+  "grault": true,
+  "garply": [
+    "waldo",
+    "xyzzy",
+    "thud"
+  ],
+  "corge": {
+    "fred": 1,
+    "plugh": false
+  }
+}
+```
 ## Conclusion
 
-To pass secrets to a container use stdin.  Use of environment or command line
-will result of your secrets being leaked.
+By now we demonstrated that:
 
-As was [demonstrated earlier](README.md) `gomplate` can be used to retrieve
-secrets from secure storage.
+* you can pass secrets to a container using stdin
+* use of AWS+SM allows for secrets consumption without touching the file system
+* use of environment or command line will leak the secrets
 
 ## Use with docker-compose
 

@@ -18,7 +18,6 @@ or container.
 Road map:
 
 * Start with [app/README.md](app/README.md) for a bare app case.
-* Continue with [app/README-docker.md](app/README-docker.md) for a consideration
+* Continue with [app/docker.md](app/docker.md) for a consideration
 of passing parameters and secrets to an app in a container.
-* Finally: [README-docker-compose.md](README-docker-compose.md) covers docker
-compose case.
+* Finally: [docker-compose.md](docker-compose.md) covers docker compose case.
