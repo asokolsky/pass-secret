@@ -146,7 +146,7 @@ You can now retrieve the secrets and pass it directly to docker compose via
 stdin using gomplate:
 
 ```
-> gomplate -d 'secrets=aws+sm:pass-secret?type=application/json' -f compose.gomplate| \
+> gomplate -d 'secrets=aws+sm:pass-secret' -f compose.gomplate| \
    sudo docker compose -f - up
 [+] Running 1/0
  ⠿ Container pass-secret-app-1  Recreated 0.0s
@@ -167,11 +167,13 @@ Check the app:
 hello from docker!
 > curl -q http://127.0.0.1:8888/get-env
 {
-  "AP_FOO": "bar",
   "AP_BAZ": "1",
-  "AP_QUX": "null",
+  "AP_CORGE": "{\"fred\":1,\"plugh\":false}",
+  "AP_FOO": "\"bar\"",
+  "AP_GARPLY": "[\"waldo\",\"xyzzy\",\"thud\"]",
+  "AP_GRAULT": "true",
   "AP_QUUX": "3.3",
-  "AP_GRAULT": "true"
+  "AP_QUX": "null"
 }
 > curl -q http://127.0.0.1:8888/get-secrets
 {}

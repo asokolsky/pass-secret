@@ -87,7 +87,7 @@ You can launch the container with secrets retrieved from AWS using gomplate:
 
 ```
 cat secrets.gomplate | \
-  gomplate -d 'secrets=aws+sm:pass-secret?type=application/json' | \
+  gomplate -d 'secrets=aws+sm:pass-secret' | \
   sudo docker run -e AP_FOO=bar -p 8888:8888 -i params-secret-test
 
  * Serving Flask app 'app'

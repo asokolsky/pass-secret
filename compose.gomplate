@@ -1,11 +1,13 @@
+{{- $secrets := (datasource "secrets") -}}
+{{- if test.IsKind "string" $secrets -}}
+{{ $secrets = $secrets | data.JSON }}
+{{- end -}}
 services:
   app:
     environment:
-      - AP_FOO={{ (datasource "secrets").foo }}
-      - AP_BAZ={{ (datasource "secrets").baz }}
-      - AP_QUX={{ (datasource "secrets").qux | data.ToJSONPretty "  " }}
-      - AP_QUUX={{ (datasource "secrets").quux }}
-      - AP_GRAULT={{ (datasource "secrets").grault }}
+{{- range $key, $value := $secrets }}
+      - AP_{{ $key | strings.ToUpper }}={{ $value | data.ToJSON }}
+{{- end }}
     #stdin_open: true # docker run -i
     #tty: false
     # flask requires SIGINT to stop gracefully

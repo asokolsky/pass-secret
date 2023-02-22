@@ -158,20 +158,20 @@ For example, here we use `secrets.json` as a data source to fill in
 '''
 > cat secrets.gomplate | gomplate -d secrets=secrets.json
 {
-    "foo": "bar",
-    "baz": 1,
-    "qux": null,
-    "quux": 3.3,
-    "grault": true,
-    "garply": [
-  "waldo",
-  "xyzzy",
-  "thud"
-],
-    "corge": {
-  "fred": 1,
-  "plugh": false
-}
+  "baz": 1,
+  "corge": {
+    "fred": 1,
+    "plugh": false
+  },
+  "foo": "bar",
+  "garply": [
+    "waldo",
+    "xyzzy",
+    "thud"
+  ],
+  "grault": true,
+  "quux": 3.3,
+  "qux": null
 }
 '''
 
@@ -225,7 +225,7 @@ aws secretsmanager create-secret \
 Launch the app like this:
 ```sh
 cat secrets.gomplate | \
-  gomplate -d 'secrets=aws+sm:pass-secret?type=application/json' | \
+  gomplate -d 'secrets=aws+sm:pass-secret' | \
   AP_FOO=bar python3 app.py --hi "Cruel cruel world"
 ```
 
